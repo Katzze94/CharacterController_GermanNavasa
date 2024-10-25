@@ -10,6 +10,9 @@ public class PlayerController : MonoBehaviour
 
     private CharacterController _controller;
 
+     private Transform _camera;
+//-------------InPuts-----------------------------------
+
     private float _horizontal;
 
     private float _vertical;
@@ -18,6 +21,8 @@ public class PlayerController : MonoBehaviour
 
     private float _turnSmoothVelocity;
     [SerializeField] private float _turnSmoothTime = 0.5f;
+
+    [SerializeField] private float _jumpHeight = 1;
 
 
 //----------------Gravedad--------------------------
@@ -32,12 +37,16 @@ public class PlayerController : MonoBehaviour
 
     [SerializeField] LayerMask _groundLayer;
 
+   
+
+
 
 
 
     void Awake()
     {
         _controller = GetComponent<CharacterController>();
+        _camera = Camera.main.transform;
     }
    
    
@@ -53,8 +62,24 @@ public class PlayerController : MonoBehaviour
         _horizontal = Input.GetAxis("Horizontal");
         _vertical = Input.GetAxis("Vertical");
        
-        Movement();
+       // Movement();
        
+
+    if(Input.GetButton("Fire2"))
+    {
+        AimMovement();
+    }
+    else
+    {
+        Movement();
+    }
+    
+    
+    if(Input.GetButtonDown("Jump") && IsGrounded())
+    {
+        Jump();
+    }
+
         Gravity();
     }
 
@@ -64,14 +89,39 @@ public class PlayerController : MonoBehaviour
 
         if(direction != Vector3.zero)
         {
-            float targetAngle = Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg;
+        float targetAngle = Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg;
 
-            float smoothAngle = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetAngle, ref _turnSmoothVelocity, _turnSmoothTime);
+        float smoothAngle = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetAngle, ref _turnSmoothVelocity, _turnSmoothTime);
 
-           transform.rotation = Quaternion.Euler(0, smoothAngle, 0);
+        transform.rotation = Quaternion.Euler(0, smoothAngle, 0);
+        Vector3 moveDirection = Quaternion.Euler(0, targetAngle, 0)*Vector3.forward;
 
-            _controller.Move(direction * _movementSpeed * Time.deltaTime);
+        _controller.Move(moveDirection * _movementSpeed * Time.deltaTime);
         }
+        
+    }
+
+     void AimMovement()
+    {
+        Vector3 direction = new Vector3(_horizontal, 0, _vertical);
+
+        
+        
+        float targetAngle = Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg;
+
+        float smoothAngle = Mathf.SmoothDampAngle(transform.eulerAngles.y, _camera.eulerAngles.y, ref _turnSmoothVelocity, _turnSmoothTime);
+
+        transform.rotation = Quaternion.Euler(0, smoothAngle, 0);
+       
+       if(direction != Vector3.zero)
+
+       {
+       
+        Vector3 moveDirection = Quaternion.Euler(0, targetAngle, 0)*Vector3.forward;
+
+        _controller.Move(moveDirection * _movementSpeed * Time.deltaTime);
+       }
+        
         
     }
 
@@ -88,6 +138,11 @@ public class PlayerController : MonoBehaviour
 
         _controller.Move(_playerGravity * Time.deltaTime);
         
+    }
+
+    void Jump()
+    {
+        _playerGravity.y = Mathf.Sqrt(_jumpHeight * -2 * _gravity);
     }
 
     bool IsGrounded()
