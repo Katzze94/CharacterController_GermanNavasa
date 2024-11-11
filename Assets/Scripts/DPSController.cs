@@ -11,7 +11,14 @@ public class DPSController : MonoBehaviour
     private CharacterController _controller;
      private Transform _camera;
      private Transform _lookAtPlayer;
+
+
+     //--------------Camaras------------------
+
+     [SerializeField] private GameObject _normalCamara;
+     [SerializeField] private GameObject _aimCamara;
 //-------------InPuts-----------------------------------
+
     private float _horizontal;
     private float _vertical;
     [SerializeField] private float _movementSpeed = 5;
@@ -30,6 +37,11 @@ public class DPSController : MonoBehaviour
     [SerializeField] private AxisState yAxis;
     
 
+
+void Start()
+{
+    Cursor.lockState = CursorLockMode.Locked;
+}
  void Awake()
     {
         _controller = GetComponent<CharacterController>();
@@ -42,6 +54,17 @@ public class DPSController : MonoBehaviour
     {
         _horizontal = Input.GetAxis("Horizontal");
         _vertical = Input.GetAxis("Vertical");
+
+        if(Input.GetButtonDown("Fire2"))
+        {
+            _normalCamara.SetActive(false);
+            _aimCamara.SetActive(true);
+        }
+        else if(Input.GetButtonUp("Fire2"))
+        {
+            _normalCamara.SetActive(true);
+            _aimCamara.SetActive(false);
+        }
        
         Movement();
     
