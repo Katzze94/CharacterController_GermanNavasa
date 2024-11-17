@@ -255,6 +255,8 @@ public class PlayerController : MonoBehaviour
     {
         _movementSpeed = 0;
 
+        _turnSmoothTime = 0;
+
         _animator.SetBool("IsDeath", true);
     }
 }
