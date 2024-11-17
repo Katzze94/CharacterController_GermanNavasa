@@ -5,7 +5,7 @@ using UnityEngine;
 public class CicloDiaYNoche : MonoBehaviour
 {
     
-    public int rotationScale = 10;
+    public int rotationScale = 1;
 
    
     void Start()

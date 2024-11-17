@@ -60,7 +60,7 @@ public class PlayerController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        
+        _animator.SetBool("IsDeath", false);
     }
 
     // Update is called once per frame
@@ -70,8 +70,13 @@ public class PlayerController : MonoBehaviour
         _vertical = Input.GetAxis("Vertical");
        
        // Movement();
+
+      
+       
+       
        
 
+   
     if(Input.GetButton("Fire2"))
     {
         AimMovement();
@@ -235,6 +240,22 @@ public class PlayerController : MonoBehaviour
     {
         Gizmos.color = Color.green;
         Gizmos.DrawWireSphere(_sensorPosition.position, _sensorRadius);
+    }
+
+
+    void OnTriggerEnter (Collider collider)
+    {
+
+        Death();
+
+    }
+
+
+    void Death()
+    {
+        _movementSpeed = 0;
+
+        _animator.SetBool("IsDeath", true);
     }
 }
 
