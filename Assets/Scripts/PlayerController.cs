@@ -19,11 +19,11 @@ public class PlayerController : MonoBehaviour
 
     private float _vertical;
 
-    [SerializeField] private float _movementSpeed = 5;
-    [SerializeField] private float _pushForce = 10;  //Sesion 8/11
+    [SerializeField] private float _movementSpeed = 10;
+   // [SerializeField] private float _pushForce = 10;  //Sesion 8/11
 
-    private float _turnSmoothVelocity;
-    [SerializeField] private float _turnSmoothTime = 0.5f;
+    private float _turnSmoothVelocity;   //Hacer rotación del personaje suave
+    [SerializeField] private float _turnSmoothTime = 0.5f;   //Hacer rotación del personaje suave
 
     [SerializeField] private float _jumpHeight = 1;
 
@@ -41,6 +41,8 @@ public class PlayerController : MonoBehaviour
     [SerializeField] LayerMask _groundLayer;
 
     private Vector3 moveDirection;
+
+    private bool isDead;
 
     
    
@@ -61,15 +63,17 @@ public class PlayerController : MonoBehaviour
     void Start()
     {
         _animator.SetBool("IsDeath", false);
+
+         Cursor.lockState = CursorLockMode.Locked;
     }
 
     // Update is called once per frame
     void Update()
     {
-        _horizontal = Input.GetAxis("Horizontal");
-        _vertical = Input.GetAxis("Vertical");
+        _horizontal = Input.GetAxis("Horizontal"); //examen charactercontroller
+        _vertical = Input.GetAxis("Vertical");   //Asignan los inputs de movimiento ,examen charactercontroller
        
-       // Movement();
+       // Movement(); //Si es necesario en el examen
 
       
        
@@ -77,52 +81,69 @@ public class PlayerController : MonoBehaviour
        
 
    
-    if(Input.GetButton("Fire2"))
+    if(Input.GetButton("Fire2"))//No es necesario en el examen
     {
-        AimMovement();
+        AimMovement();  //No es necesario en el examen
     }
-    else
+    else if(!isDead)
     {
-        Movement();
+        Movement();//No es necesario en el examen
     }
     
     
-    if(Input.GetButtonDown("Jump") && IsGrounded())
+    
+    if(Input.GetButtonDown("Jump") && IsGrounded()) //Examen character controller
     {
         Jump();
     }
 
         Gravity();
 
-        if(Input.GetKeyDown(KeyCode.F))
+        if(Input.GetKeyDown(KeyCode.F))  //En examen de charcater controller no
         {
             RayTest();
         }
     }
 
-    void Movement()
+    void Movement() //Necesario para el examen
     {
-        Vector3 direction = new Vector3(_horizontal, 0, _vertical);
+        Vector3 direction = new Vector3(_horizontal, 0, _vertical);  //Almacenará los inputs de movimineto
 
         _animator.SetFloat("VelZ", direction.magnitude);
         _animator.SetFloat("VelX", 0);
 
-        if(direction != Vector3.zero)
+        if(direction != Vector3.zero) //Solo se ejecuta si estoy tocando una flecha de movimineot
         {
-        float targetAngle = Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg + _camera.eulerAngles.y;
-
+      
+        float targetAngle /*Establecer angulo de movimineto*/= Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg + _camera.eulerAngles.y; //Hacía donde mira la camara es a donde mira el pj
         float smoothAngle = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetAngle, ref _turnSmoothVelocity, _turnSmoothTime);
 
         transform.rotation = Quaternion.Euler(0, smoothAngle, 0);
 
-        moveDirection = Quaternion.Euler(0, targetAngle, 0)*Vector3.forward;
+      Vector3  moveDirection = Quaternion.Euler(0, targetAngle, 0)*Vector3.forward;
 
         _controller.Move(moveDirection * _movementSpeed * Time.deltaTime);
+       
         }
         
     }
 
-     void AimMovement()
+    void MovimientoCutre() //Supervivencia examen 2 puntos
+    {
+        Vector3 direction = new Vector3(_horizontal, 0, _vertical);
+
+        _animator.SetFloat("VelZ", direction.magnitude); //Animaciones
+        _animator.SetFloat("VelX", 0);
+
+       
+
+        float targetAngle /*Establecer angulo de movimineto*/= Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg; //Esto pa que rote
+        transform.rotation = Quaternion.Euler(0, targetAngle, 0); //Esto pa que rote
+
+        _controller.Move(direction * _movementSpeed * Time.deltaTime);
+    }
+
+     void AimMovement() //No necesario examen
     {
         Vector3 direction = new Vector3(_horizontal, 0, _vertical);
 
@@ -147,11 +168,11 @@ public class PlayerController : MonoBehaviour
         
     }
 
-    void Gravity()
+    void Gravity() //Entra examen
     {
        if(!IsGrounded())
        {
-        _playerGravity.y += _gravity *Time.deltaTime;
+        _playerGravity.y += _gravity *Time.deltaTime; //A muy malas esto
        }
         else if(IsGrounded() && _playerGravity.y < 0)
         {
@@ -159,23 +180,31 @@ public class PlayerController : MonoBehaviour
             _animator.SetBool("IsJumping",false);
         }
 
-        _controller.Move(_playerGravity * Time.deltaTime);
+       
+        _controller.Move(_playerGravity * Time.deltaTime); //A muy malas esto
         
     }
 
-    void Jump()
+    void Jump()  //Entra examen  1 punto
     {
-        _playerGravity.y = Mathf.Sqrt(_jumpHeight * -2 * _gravity);
+        _playerGravity.y = Mathf.Sqrt(_jumpHeight * -2 * _gravity); //Aprenderlo
+       // _playerGravity.y = _jumpHeight
+        
         
         _animator.SetBool("IsJumping",true);
+
+
     }
 
-   /* bool IsGrounded()
+    bool IsGrounded() //esto examen 1 punto
     {
         return Physics.CheckSphere(_sensorPosition.position, _sensorRadius, _groundLayer);
-    } */
+    }
 
-    bool IsGrounded() //sesión 8/11
+ 
+   
+   
+    /*bool IsGrounded() //sesión 8/11
     {
         RaycastHit hit;
         if(Physics.Raycast(_sensorPosition.position, -transform.up, out hit, 2))
@@ -195,10 +224,11 @@ public class PlayerController : MonoBehaviour
         {
             return false;
         }
-    }
+    }*/
+
 
    
-   void OnControllerColliderHit(ControllerColliderHit hit) //Sesion 8/11
+   /*void OnControllerColliderHit(ControllerColliderHit hit) //Sesion 8/11
     {
      
      if(hit.gameObject.layer == 7)
@@ -214,9 +244,11 @@ public class PlayerController : MonoBehaviour
         Vector3 pushDirection = new Vector3(moveDirection.x, 0, moveDirection.z);
 
         rBody.velocity = pushDirection * _pushForce / rBody.mass;
-    }
+    } 
+    
 
-    }
+
+    }*/
    
    void RayTest() //8/11 De esto habrá examen, durito
    {
@@ -253,9 +285,10 @@ public class PlayerController : MonoBehaviour
 
     void Death()
     {
-        _movementSpeed = 0;
+        
 
-        _turnSmoothTime = 0;
+        isDead= true;
+       
 
         _animator.SetBool("IsDeath", true);
     }
